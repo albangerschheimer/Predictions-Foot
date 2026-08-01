@@ -147,7 +147,6 @@ for _, match in df.iterrows():
         away_goals_conceded.append(None)
 
 
-    # Résultat du match actuel
     home_goals = match["FTHG"]
     away_goals = match["FTAG"]
 
@@ -170,8 +169,7 @@ for _, match in df.iterrows():
         away_points = 3
 
 
-    # On ajoute le match à l'historique
-    # seulement APRÈS avoir calculé les features
+    
 
     team_history[home].append({
         "points": home_points,
@@ -189,7 +187,6 @@ for _, match in df.iterrows():
     })
 
 
-# Ajout des nouvelles colonnes
 
 df["home_form_last5"] = home_form
 df["away_form_last5"] = away_form
@@ -204,7 +201,6 @@ df["home_points_at_home_last5"] = home_points_at_home_last5
 df["away_points_away_last5"] = away_points_away_last5
 
 
-# Sauvegarde
 
 df.to_csv(
     "data/processed/ligue1_features.csv",
