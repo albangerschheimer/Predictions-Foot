@@ -13,8 +13,8 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 PUBLIC_DIRECTORY = PROJECT_ROOT / "public"
 
 app = FastAPI(
-    title="Prono Ligue 1",
-    description="Probabilités de résultats calculées par le modèle Predictions-Foot.",
+    title="PredictionFoot",
+    description="Ligue 1 match probabilities calculated by Predictions-Foot.",
     version="1.0.0",
 )
 

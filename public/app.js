@@ -6,14 +6,26 @@ const swapButton = document.querySelector("#swap-teams");
 const results = document.querySelector("#results");
 const errorMessage = document.querySelector("#form-error");
 
-const teamPalette = [
-  "#d7ff54",
-  "#74e6bd",
-  "#76a9ff",
-  "#ffb85c",
-  "#f388a5",
-  "#bba2ff",
-];
+const teamAssets = {
+  Angers: "angers",
+  Auxerre: "auxerre",
+  Brest: "brest",
+  "Le Havre": "le-havre",
+  Lens: "lens",
+  Lille: "lille",
+  Lorient: "lorient",
+  Lyon: "lyon",
+  Marseille: "marseille",
+  Metz: "metz",
+  Monaco: "monaco",
+  Nantes: "nantes",
+  Nice: "nice",
+  "Paris FC": "paris-fc",
+  "Paris SG": "paris-sg",
+  Rennes: "rennes",
+  Strasbourg: "strasbourg",
+  Toulouse: "toulouse",
+};
 
 function initials(team) {
   const aliases = {
@@ -24,7 +36,6 @@ function initials(team) {
     Lyon: "OL",
     Lille: "LOSC",
     "Le Havre": "HAC",
-    "St Etienne": "ASSE",
   };
 
   if (aliases[team]) return aliases[team];
@@ -32,18 +43,29 @@ function initials(team) {
     .split(/\s+/)
     .map((word) => word[0])
     .join("")
-    .slice(0, 3)
+    .slice(0, 4)
     .toUpperCase();
 }
 
-function teamColor(team) {
-  const hash = [...team].reduce((total, character) => total + character.charCodeAt(0), 0);
-  return teamPalette[hash % teamPalette.length];
-}
+function paintCrest(container, team, { draw = false } = {}) {
+  const image = container.querySelector("img");
+  const fallback = container.querySelector(".crest-fallback");
 
-function paintCrest(element, team) {
-  element.textContent = initials(team);
-  element.style.setProperty("--crest-color", teamColor(team));
+  container.classList.toggle("is-draw", draw);
+  container.classList.remove("is-fallback");
+  fallback.textContent = draw ? "X" : initials(team);
+
+  if (draw || !teamAssets[team]) {
+    image.removeAttribute("src");
+    image.alt = "";
+    container.classList.add("is-fallback");
+    return;
+  }
+
+  image.onload = () => container.classList.remove("is-fallback");
+  image.onerror = () => container.classList.add("is-fallback");
+  image.src = `/assets/teams/${teamAssets[team]}.png`;
+  image.alt = `${team} crest`;
 }
 
 function syncCrests() {
@@ -77,12 +99,12 @@ function setLoading(isLoading) {
   submitButton.disabled = isLoading;
   submitButton.classList.toggle("is-loading", isLoading);
   submitButton.querySelector(".button-label").textContent = isLoading
-    ? "Analyse en cours"
-    : "Lancer l’analyse";
+    ? "Calculating"
+    : "Reveal forecast";
 }
 
 function formatProbability(value) {
-  return new Intl.NumberFormat("fr-FR", {
+  return new Intl.NumberFormat("en-GB", {
     style: "percent",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -92,19 +114,22 @@ function formatProbability(value) {
 function renderResults(data) {
   const { home_team: homeTeam, away_team: awayTeam, probabilities, prediction } = data;
   const predictionKey = { H: "home", D: "draw", A: "away" }[prediction.class];
+  const displayWinner = prediction.class === "D" ? "a draw" : prediction.label;
 
-  document.querySelector("#fixture-label").textContent = `${homeTeam} — ${awayTeam}`;
+  document.querySelector("#fixture-label").textContent = `${homeTeam}  /  ${awayTeam}`;
   document.querySelector("#home-result-label").textContent = homeTeam;
   document.querySelector("#away-result-label").textContent = awayTeam;
-  document.querySelector("#winner-label").textContent = prediction.label;
+  document.querySelector("#winner-label").textContent = displayWinner;
 
-  const winnerCrest = document.querySelector("#winner-crest");
-  winnerCrest.classList.toggle("is-draw", prediction.class === "D");
-  paintCrest(winnerCrest, prediction.class === "D" ? "Nul" : prediction.label);
+  paintCrest(
+    document.querySelector("#winner-crest"),
+    prediction.label,
+    { draw: prediction.class === "D" },
+  );
 
   const bestProbability = probabilities[predictionKey];
   document.querySelector("#confidence-copy").textContent =
-    `${formatProbability(bestProbability)} de probabilité selon le modèle`;
+    `${formatProbability(bestProbability)} predicted probability`;
 
   for (const outcome of ["home", "draw", "away"]) {
     document.querySelector(`#${outcome}-probability`).textContent =
@@ -132,7 +157,7 @@ async function requestPrediction({ scroll = true } = {}) {
   clearError();
 
   if (homeSelect.value === awaySelect.value) {
-    showError("Sélectionnez deux équipes différentes.");
+    showError("Choose two different teams.");
     return;
   }
 
@@ -150,15 +175,15 @@ async function requestPrediction({ scroll = true } = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.detail || "La prédiction n’a pas pu être calculée.");
+      throw new Error(data.detail || "The forecast could not be calculated.");
     }
 
     renderResults(data);
-    if (scroll && window.innerWidth < 780) {
+    if (scroll && window.innerWidth < 760) {
       results.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   } catch (error) {
-    showError(error.message || "Le service est momentanément indisponible.");
+    showError(error.message || "The forecast service is temporarily unavailable.");
   } finally {
     setLoading(false);
   }
@@ -183,8 +208,116 @@ async function initialize() {
     syncCrests();
     await requestPrediction({ scroll: false });
   } catch {
-    showError("Impossible de charger les équipes. Réessayez dans quelques instants.");
+    showError("Unable to load the clubs. Please try again in a moment.");
   }
+}
+
+function finishIntro() {
+  const intro = document.querySelector("#intro");
+  document.documentElement.classList.remove("intro-pending");
+  document.body.classList.add("intro-complete");
+  intro.hidden = true;
+}
+
+async function playIntro() {
+  const intro = document.querySelector("#intro");
+  const backdrop = intro.querySelector(".intro-backdrop");
+  const grid = intro.querySelector(".intro-grid");
+  const wordmark = intro.querySelector(".intro-wordmark");
+  const ball = document.querySelector("#intro-ball");
+  const landing = document.querySelector("#hero-ball");
+  const skip = document.querySelector("#skip-intro");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (reducedMotion) {
+    finishIntro();
+    return;
+  }
+
+  skip.tabIndex = 0;
+  skip.addEventListener("click", finishIntro, { once: true });
+
+  try {
+    await Promise.race([
+      ball.decode(),
+      new Promise((resolve) => window.setTimeout(resolve, 700)),
+    ]);
+  } catch {
+    // The animation can still run while the browser completes the image load.
+  }
+
+  await new Promise((resolve) => window.requestAnimationFrame(resolve));
+
+  const landingBox = landing.getBoundingClientRect();
+  const baseSize = ball.offsetWidth;
+  const destinationX = landingBox.left + landingBox.width / 2 - window.innerWidth / 2;
+  const destinationY = landingBox.top + landingBox.height / 2 - window.innerHeight / 2;
+  const destinationScale = landingBox.width / baseSize;
+
+  const backdropAnimation = backdrop.animate(
+    [
+      { opacity: 1, offset: 0 },
+      { opacity: 1, offset: 0.42 },
+      { opacity: 0, offset: 1 },
+    ],
+    { duration: 2650, easing: "cubic-bezier(.65,0,.25,1)", fill: "forwards" },
+  );
+
+  grid.animate(
+    [
+      { opacity: 0.22, transform: "scale(1)" },
+      { opacity: 0, transform: "scale(1.12)" },
+    ],
+    { duration: 2100, delay: 500, easing: "ease-out", fill: "forwards" },
+  );
+
+  wordmark.animate(
+    [
+      { opacity: 0, transform: "translate(-50%, -50%) translateY(22px)" },
+      { opacity: 1, transform: "translate(-50%, -50%) translateY(0)", offset: 0.22 },
+      { opacity: 1, transform: "translate(-50%, -50%) translateY(0)", offset: 0.54 },
+      { opacity: 0, transform: "translate(-50%, -50%) translateY(-18px)" },
+    ],
+    { duration: 1650, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" },
+  );
+
+  const ballAnimation = ball.animate(
+    [
+      {
+        transform: "translate(-50%, -50%) scale(1.38) rotate(-12deg)",
+        offset: 0,
+      },
+      {
+        transform: "translate(-50%, -50%) scale(1.38) rotate(-12deg)",
+        offset: 0.18,
+      },
+      {
+        transform: "translate(-50%, -50%) scale(.76) rotate(54deg)",
+        offset: 0.44,
+      },
+      {
+        transform: `translate(calc(-50% + ${destinationX}px), calc(-50% + ${destinationY - 42}px)) scale(${destinationScale * 0.9}) rotate(300deg)`,
+        offset: 0.76,
+      },
+      {
+        transform: `translate(calc(-50% + ${destinationX}px), calc(-50% + ${destinationY + 7}px)) scale(${destinationScale * 1.05}) rotate(336deg)`,
+        offset: 0.88,
+      },
+      {
+        transform: `translate(calc(-50% + ${destinationX}px), calc(-50% + ${destinationY - 14}px)) scale(${destinationScale * 0.96}) rotate(350deg)`,
+        offset: 0.95,
+      },
+      {
+        transform: `translate(calc(-50% + ${destinationX}px), calc(-50% + ${destinationY}px)) scale(${destinationScale}) rotate(360deg)`,
+        offset: 1,
+      },
+    ],
+    { duration: 2700, easing: "cubic-bezier(.62,.05,.2,1)", fill: "forwards" },
+  );
+
+  await ballAnimation.finished;
+  await backdropAnimation.finished;
+  finishIntro();
 }
 
 form.addEventListener("submit", (event) => {
@@ -204,3 +337,4 @@ swapButton.addEventListener("click", () => {
 });
 
 initialize();
+playIntro();

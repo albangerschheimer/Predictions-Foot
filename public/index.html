@@ -1,158 +1,221 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en" class="intro-pending">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Comparez deux équipes de Ligue 1 et découvrez les probabilités du modèle Predictions-Foot."
+      content="Ligue 1 match forecasts powered by form, Elo ratings and recent results."
     />
-    <meta name="theme-color" content="#07140f" />
-    <title>Prono — Prédictions Ligue 1</title>
+    <meta name="theme-color" content="#07150d" />
+    <title>PredictionFoot — Ligue 1 Match Forecasts</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/assets/football-3d.png" as="image" />
     <link rel="stylesheet" href="/styles.css" />
     <script src="/app.js" defer></script>
   </head>
   <body>
-    <div class="ambient ambient-one" aria-hidden="true"></div>
-    <div class="ambient ambient-two" aria-hidden="true"></div>
-
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="Accueil Prono">
-        <span class="brand-mark" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </span>
-        <span>PRONO</span>
-      </a>
-      <div class="season-pill">
-        <span class="live-dot" aria-hidden="true"></span>
-        Ligue 1 · 2025/26
+    <div class="intro" id="intro">
+      <div class="intro-backdrop"></div>
+      <div class="intro-grid"></div>
+      <div class="intro-wordmark">
+        <span>Prediction</span><strong>Foot.</strong>
+        <small>Ligue 1 forecasts</small>
       </div>
-    </header>
+      <img
+        class="intro-ball"
+        id="intro-ball"
+        src="/assets/football-3d.png"
+        alt=""
+      />
+      <button class="skip-intro" id="skip-intro" type="button" tabindex="-1">
+        Skip intro
+      </button>
+    </div>
 
-    <main>
-      <section class="hero" aria-labelledby="page-title">
-        <p class="eyebrow"><span></span> Match predictor</p>
-        <h1 id="page-title">Qui prendra les<br /><em>trois points&nbsp;?</em></h1>
-        <p class="hero-copy">
-          Choisissez l’affiche. Le modèle analyse la forme, l’efficacité,
-          l’Elo et les performances récentes.
-        </p>
-      </section>
+    <div class="page-shell">
+      <header class="site-header">
+        <a class="brand" href="/" aria-label="PredictionFoot home">
+          <span class="brand-symbol" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span class="brand-name">Prediction<strong>Foot.</strong></span>
+        </a>
 
-      <section class="predictor-shell" aria-label="Simulateur de match">
-        <form id="prediction-form" class="match-card">
-          <div class="team-picker home-picker">
-            <p class="side-label"><span>01</span> À domicile</p>
-            <div class="crest" id="home-crest" aria-hidden="true">PSG</div>
-            <label for="home-team">Équipe à domicile</label>
-            <div class="select-wrap">
-              <select id="home-team" name="home_team" required disabled>
-                <option>Chargement…</option>
-              </select>
-            </div>
+        <div class="header-meta">
+          <span class="status-dot" aria-hidden="true"></span>
+          Ligue 1 · 2025/26
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" aria-labelledby="page-title">
+          <div class="hero-copy-block">
+            <p class="section-label"><span>01</span> Match forecast</p>
+            <h1 id="page-title">Before the whistle.<br /><em>Know the odds.</em></h1>
+            <p class="hero-copy">
+              Pick the fixture. We’ll turn recent form and match data into a
+              clear three-way forecast.
+            </p>
           </div>
 
-          <div class="versus-column">
-            <span class="pitch-line" aria-hidden="true"></span>
-            <button
-              class="swap-button"
-              id="swap-teams"
-              type="button"
-              aria-label="Inverser les équipes"
-              title="Inverser les équipes"
-            >
-              ⇄
+          <div class="hero-visual" aria-hidden="true">
+            <div class="hero-ring ring-one"></div>
+            <div class="hero-ring ring-two"></div>
+            <span class="hero-number">90</span>
+            <span class="hero-minute">MIN</span>
+            <img
+              class="hero-ball"
+              id="hero-ball"
+              src="/assets/football-3d.png"
+              alt=""
+            />
+          </div>
+        </section>
+
+        <section class="forecast" aria-label="Ligue 1 match forecast">
+          <div class="forecast-topline">
+            <div>
+              <span class="fixture-number">MATCH 01</span>
+              <h2>Build your fixture</h2>
+            </div>
+            <p>Home advantage is included</p>
+          </div>
+
+          <form id="prediction-form" class="match-builder">
+            <article class="team-card team-home">
+              <div class="team-card-head">
+                <span>Home</span>
+                <small>H</small>
+              </div>
+
+              <div class="club-crest" id="home-crest">
+                <img src="" alt="" />
+                <span class="crest-fallback">PSG</span>
+              </div>
+
+              <label for="home-team">Home team</label>
+              <div class="select-wrap">
+                <select id="home-team" name="home_team" required disabled>
+                  <option>Loading clubs…</option>
+                </select>
+                <span aria-hidden="true">⌄</span>
+              </div>
+            </article>
+
+            <div class="versus-column">
+              <span class="versus-rule" aria-hidden="true"></span>
+              <strong aria-hidden="true">VS</strong>
+              <button
+                class="swap-button"
+                id="swap-teams"
+                type="button"
+                aria-label="Swap home and away teams"
+                title="Swap teams"
+              >
+                <span aria-hidden="true">⇄</span>
+              </button>
+              <span class="versus-rule" aria-hidden="true"></span>
+            </div>
+
+            <article class="team-card team-away">
+              <div class="team-card-head">
+                <span>Away</span>
+                <small>A</small>
+              </div>
+
+              <div class="club-crest" id="away-crest">
+                <img src="" alt="" />
+                <span class="crest-fallback">OM</span>
+              </div>
+
+              <label for="away-team">Away team</label>
+              <div class="select-wrap">
+                <select id="away-team" name="away_team" required disabled>
+                  <option>Loading clubs…</option>
+                </select>
+                <span aria-hidden="true">⌄</span>
+              </div>
+            </article>
+
+            <button class="predict-button" id="predict-button" type="submit" disabled>
+              <span class="button-index">02</span>
+              <span class="button-label">Reveal forecast</span>
+              <span class="button-icon" aria-hidden="true">→</span>
             </button>
-            <strong aria-hidden="true">VS</strong>
-            <span class="pitch-line" aria-hidden="true"></span>
-          </div>
+          </form>
 
-          <div class="team-picker away-picker">
-            <p class="side-label"><span>02</span> À l’extérieur</p>
-            <div class="crest" id="away-crest" aria-hidden="true">OM</div>
-            <label for="away-team">Équipe extérieure</label>
-            <div class="select-wrap">
-              <select id="away-team" name="away_team" required disabled>
-                <option>Chargement…</option>
-              </select>
-            </div>
-          </div>
-
-          <button class="predict-button" id="predict-button" type="submit" disabled>
-            <span class="button-label">Lancer l’analyse</span>
-            <span class="button-arrow" aria-hidden="true">↗</span>
-          </button>
-        </form>
-
-        <div id="form-error" class="error-message" role="alert" hidden></div>
+          <div id="form-error" class="error-message" role="alert" hidden></div>
+        </section>
 
         <section
           id="results"
-          class="results-card"
+          class="results"
           aria-labelledby="results-title"
           aria-live="polite"
           hidden
         >
-          <div class="result-heading">
-            <div>
-              <p class="eyebrow small"><span></span> Analyse terminée</p>
-              <h2 id="results-title">Le verdict du modèle</h2>
+          <div class="results-copy">
+            <p class="section-label light"><span>03</span> Full-time forecast</p>
+            <p class="fixture-label" id="fixture-label"></p>
+            <h2 id="results-title">The edge goes to<br /><strong id="winner-label"></strong></h2>
+
+            <div class="winner-mark">
+              <div class="club-crest compact" id="winner-crest">
+                <img src="" alt="" />
+                <span class="crest-fallback"></span>
+              </div>
+              <p id="confidence-copy"></p>
             </div>
-            <p id="fixture-label" class="fixture-label"></p>
           </div>
 
-          <div class="verdict-layout">
-            <div class="winner-panel">
-              <p class="panel-kicker">Prédiction</p>
-              <div class="winner-crest crest" id="winner-crest" aria-hidden="true"></div>
-              <p class="winner-label" id="winner-label"></p>
-              <p class="confidence-copy" id="confidence-copy"></p>
+          <div class="probability-board">
+            <div class="probability-row" data-outcome="home">
+              <div class="probability-meta">
+                <span id="home-result-label">Home</span>
+                <strong id="home-probability">0.00%</strong>
+              </div>
+              <div class="bar-track"><span id="home-bar"></span></div>
             </div>
 
-            <div class="probability-list">
-              <div class="probability-row" data-outcome="home">
-                <div class="probability-meta">
-                  <span id="home-result-label">Domicile</span>
-                  <strong id="home-probability">0,00 %</strong>
-                </div>
-                <div class="bar-track"><span id="home-bar"></span></div>
+            <div class="probability-row" data-outcome="draw">
+              <div class="probability-meta">
+                <span>Draw</span>
+                <strong id="draw-probability">0.00%</strong>
               </div>
-
-              <div class="probability-row" data-outcome="draw">
-                <div class="probability-meta">
-                  <span>Match nul</span>
-                  <strong id="draw-probability">0,00 %</strong>
-                </div>
-                <div class="bar-track"><span id="draw-bar"></span></div>
-              </div>
-
-              <div class="probability-row" data-outcome="away">
-                <div class="probability-meta">
-                  <span id="away-result-label">Extérieur</span>
-                  <strong id="away-probability">0,00 %</strong>
-                </div>
-                <div class="bar-track"><span id="away-bar"></span></div>
-              </div>
+              <div class="bar-track"><span id="draw-bar"></span></div>
             </div>
+
+            <div class="probability-row" data-outcome="away">
+              <div class="probability-meta">
+                <span id="away-result-label">Away</span>
+                <strong id="away-probability">0.00%</strong>
+              </div>
+              <div class="bar-track"><span id="away-bar"></span></div>
+            </div>
+
+            <p class="model-note">
+              Based on recent form, goals, Elo rating and points per game.
+            </p>
           </div>
         </section>
-      </section>
 
-      <section class="method-strip" aria-label="Indicateurs utilisés par le modèle">
-        <p>Le modèle lit le match à travers</p>
-        <ul>
-          <li><span>01</span> Forme récente</li>
-          <li><span>02</span> Buts marqués</li>
-          <li><span>03</span> Classement Elo</li>
-          <li><span>04</span> Points par match</li>
-        </ul>
-      </section>
-    </main>
+        <section class="closing-strip" aria-label="About the forecast">
+          <p>One match</p>
+          <span></span>
+          <p>Three outcomes</p>
+          <span></span>
+          <p>No guarantees</p>
+        </section>
+      </main>
 
-    <footer>
-      <p>Predictions-Foot · Modèle scikit-learn</p>
-      <p>Une probabilité n’est pas une certitude.</p>
-    </footer>
+      <footer>
+        <a class="footer-brand" href="/">PredictionFoot.</a>
+        <p>Ligue 1 match probabilities</p>
+        <p>Built from football data, not certainty.</p>
+      </footer>
+    </div>
+
+    <noscript><style>.intro { display: none !important; }</style></noscript>
   </body>
 </html>

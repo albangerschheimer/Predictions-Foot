@@ -54,7 +54,7 @@ def _latest_team_row(dataframe: pd.DataFrame, team: str) -> pd.Series:
     ]
 
     if matches.empty:
-        raise UnknownTeamError(f"Équipe inconnue : {team}")
+        raise UnknownTeamError(f"Unknown team: {team}")
 
     return matches.iloc[-1]
 
@@ -145,9 +145,9 @@ def predict_match(home_team: str, away_team: str) -> dict[str, Any]:
     away_team = away_team.strip()
 
     if not home_team or not away_team:
-        raise ValueError("Les deux équipes sont obligatoires.")
+        raise ValueError("Both teams are required.")
     if home_team == away_team:
-        raise ValueError("Sélectionnez deux équipes différentes.")
+        raise ValueError("Choose two different teams.")
 
     model, _, _ = _load_assets()
     match = _build_match_features(home_team, away_team)
@@ -157,7 +157,7 @@ def predict_match(home_team: str, away_team: str) -> dict[str, Any]:
     }
     prediction_class = str(model.predict(match)[0])
 
-    labels = {"H": home_team, "D": "Match nul", "A": away_team}
+    labels = {"H": home_team, "D": "Draw", "A": away_team}
 
     return {
         "home_team": home_team,
@@ -182,9 +182,9 @@ def _print_prediction(result: dict[str, Any]) -> None:
     print(f"\n⚽ {home_team} vs {away_team}")
     print("-" * 40)
     print(f"{home_team:<20} : {probabilities['home']:.2%}")
-    print(f"{'Match nul':<20} : {probabilities['draw']:.2%}")
+    print(f"{'Draw':<20} : {probabilities['draw']:.2%}")
     print(f"{away_team:<20} : {probabilities['away']:.2%}")
-    print(f"\n🎯 Prédiction : {result['prediction']['label']}")
+    print(f"\nPrediction: {result['prediction']['label']}")
 
 
 if __name__ == "__main__":

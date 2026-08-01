@@ -22,7 +22,7 @@ class PredictMatchTests(unittest.TestCase):
         self.assertIn("Marseille", teams)
 
     def test_same_team_is_rejected(self):
-        with self.assertRaisesRegex(ValueError, "différentes"):
+        with self.assertRaisesRegex(ValueError, "different"):
             predict_match("Lyon", "Lyon")
 
     def test_unknown_team_is_rejected(self):
