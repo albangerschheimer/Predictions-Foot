@@ -1,47 +1,54 @@
-# ⚽ Ligue 1 Match Predictor
+# Ligue 1 Match Predictor ⚽
 
-A Machine Learning project that predicts the outcome of French Ligue 1 football matches using historical match data, recent team form, offensive and defensive statistics, Elo ratings, and other engineered features.
+Projet de Machine Learning permettant de prédire le résultat d'un match de Ligue 1 à partir des performances passées des équipes.
 
-The model predicts three possible outcomes:
+Le modèle estime les probabilités de trois résultats :
 
-- 🏠 **H** — Home win
-- 🤝 **D** — Draw
-- ✈️ **A** — Away win
+- Victoire de l'équipe à domicile
+- Match nul
+- Victoire de l'équipe à l'extérieur
 
-The project covers the complete Data Science workflow: data collection, preprocessing, feature engineering, model training, evaluation, and match prediction.
+## 🌐 Démo
 
----
+Le projet est disponible en ligne :
 
-## 🎯 Project Goal
+👉 [pronostic-foot.vercel.app](https://pronostic-foot.vercel.app/)
 
-The objective of this project is to answer a simple question:
+Il suffit de choisir l'équipe à domicile et l'équipe à l'extérieur pour obtenir les probabilités calculées par le modèle.
 
-> **Can historical football data be used to predict the result of a Ligue 1 match?**
-
-Instead of using only the team names, the model tries to estimate the relative strength and recent performance of both teams before each match.
-
-For example:
+Exemple :
 
 ```text
-⚽ Paris SG vs Marseille
-----------------------------------------
+Paris SG vs Marseille
 
-Marseille            : 10.29%
-Draw                 : 16.73%
-Paris SG             : 72.98%
+Paris SG     : 72.98%
+Match nul    : 16.73%
+Marseille    : 10.29%
 
-🎯 Prediction: Paris SG
+Prédiction : Paris SG
 ```
 
 ---
 
-# 📊 Dataset
+## Objectif
 
-The project uses historical French Ligue 1 match data from:
+L'objectif de ce projet était de construire un projet Data Science complet autour du football :
 
-**Football-Data.co.uk**
+1. Récupérer des données réelles de Ligue 1
+2. Nettoyer et préparer les données
+3. Créer des variables utiles pour représenter la forme des équipes
+4. Entraîner plusieurs modèles de Machine Learning
+5. Comparer leurs performances
+6. Créer un système capable de prédire un nouveau match
+7. Mettre le modèle à disposition dans une application web
 
-The dataset currently contains Ligue 1 seasons from:
+---
+
+## Données
+
+Les données utilisées proviennent de **Football-Data.co.uk**.
+
+Le dataset regroupe plusieurs saisons de Ligue 1 :
 
 - 2021-2022
 - 2022-2023
@@ -49,9 +56,9 @@ The dataset currently contains Ligue 1 seasons from:
 - 2024-2025
 - 2025-2026
 
-Approximately **1,678 matches** are used before feature preprocessing.
+Cela représente environ **1 678 matchs** avant le traitement des données.
 
-The original match data includes information such as:
+Les données de base contiennent notamment :
 
 ```text
 Date
@@ -63,75 +70,55 @@ FTR
 Season
 ```
 
-Where:
+Avec :
 
-| Variable | Meaning |
+| Variable | Description |
 |---|---|
-| `FTHG` | Full Time Home Goals |
-| `FTAG` | Full Time Away Goals |
-| `FTR` | Full Time Result |
-| `H` | Home win |
-| `D` | Draw |
-| `A` | Away win |
+| `FTHG` | Nombre de buts de l'équipe à domicile |
+| `FTAG` | Nombre de buts de l'équipe à l'extérieur |
+| `FTR` | Résultat final |
+| `H` | Victoire à domicile |
+| `D` | Match nul |
+| `A` | Victoire à l'extérieur |
 
 ---
 
-# 🧠 Feature Engineering
+## Feature Engineering
 
-Raw match results are not enough to build a useful prediction model.
+Une partie importante du projet a été de créer des informations permettant de représenter le niveau des deux équipes **avant le match**.
 
-Several features were therefore calculated using only information available **before each match**.
+### Forme récente
 
-This is important because using information from the match being predicted would create **data leakage**.
-
-## Recent Form
-
-The model calculates the performance of each team over its previous five matches.
-
-Examples:
+Pour chaque équipe, j'ai calculé les résultats sur les 5 derniers matchs :
 
 ```text
 home_form_last5
 away_form_last5
 ```
 
-Points are calculated using the standard football system:
+Le système de points utilisé est :
 
 ```text
-Win  = 3 points
-Draw = 1 point
-Loss = 0 points
+Victoire = 3
+Nul      = 1
+Défaite  = 0
 ```
 
----
+### Attaque et défense
 
-## ⚽ Offensive Performance
-
-The average number of goals scored over the previous five matches:
+J'ai également calculé les moyennes de buts marqués et encaissés sur les derniers matchs :
 
 ```text
 home_goals_scored_last5
 away_goals_scored_last5
-```
 
----
-
-## 🛡️ Defensive Performance
-
-The average number of goals conceded over the previous five matches:
-
-```text
 home_goals_conceded_last5
 away_goals_conceded_last5
 ```
 
----
+### Comparaison des équipes
 
-## 📈 Comparative Features
-
-Additional variables compare the two teams directly.
-
-Examples:
+D'autres variables permettent de comparer directement les deux équipes :
 
 ```text
 form_diff
@@ -141,22 +128,20 @@ home_attack_vs_away_defense
 away_attack_vs_home_defense
 ```
 
-These features help the model understand the difference in strength between the two opponents.
-
 ---
 
-# ♟️ Elo Rating
+## Elo Rating
 
-One of the most important improvements to the project was the implementation of an **Elo rating system**.
+J'ai ensuite ajouté un système de classement **Elo**.
 
-Every team starts with an Elo rating and gains or loses points after each match depending on:
+Chaque équipe possède un score qui évolue après chaque match selon :
 
-- its previous rating
-- the opponent's rating
-- the match result
-- home advantage
+- son niveau avant le match
+- le niveau de son adversaire
+- le résultat du match
+- l'avantage du terrain
 
-The following features are generated:
+Les principales variables sont :
 
 ```text
 home_elo
@@ -164,44 +149,17 @@ away_elo
 elo_diff
 ```
 
-Elo significantly improved the prediction performance of the model.
+L'ajout de l'Elo a été une des améliorations les plus importantes du projet.
 
-Before Elo, the best models achieved approximately:
+Avant son ajout, les modèles tournaient autour de **45 % d'accuracy**.
 
-```text
-45% accuracy
-```
-
-After adding Elo:
-
-```text
-~50% accuracy
-```
+Après son ajout, les performances sont montées autour de **50 %**.
 
 ---
 
-# 🏟️ Home and Away Form
+## Points par match
 
-The project also experimented with venue-specific performance.
-
-Features such as:
-
-```text
-home_points_at_home_last5
-away_points_away_last5
-```
-
-were created to measure how teams perform specifically at home or away.
-
-These features were tested but did not significantly improve the final model.
-
-This is an important part of the Machine Learning workflow: not every new feature improves performance.
-
----
-
-# 📊 Points Per Game
-
-Another experiment introduced long-term team performance using Points Per Game:
+J'ai également testé des statistiques de performance plus générales :
 
 ```text
 home_ppg
@@ -209,100 +167,161 @@ away_ppg
 ppg_diff
 ```
 
-These features provide information about the overall historical performance of each team.
+PPG signifie **Points Per Game**.
 
-They were evaluated alongside the existing form and Elo features.
+Cela permet de représenter les performances d'une équipe sur une période plus longue que les 5 derniers matchs.
 
 ---
 
-# 🤖 Machine Learning Models
+## Modèles testés
 
-Several classification algorithms were compared using the same chronological train/test split.
+J'ai comparé plusieurs algorithmes sur les mêmes données :
 
-The models tested were:
-
-- Logistic Regression
-- Random Forest
-- Gradient Boosting
-- Histogram Gradient Boosting
-
-## Results
-
-| Model | Accuracy |
+| Modèle | Accuracy |
 |---|---:|
-| 🥇 Logistic Regression | **49.84%** |
-| Random Forest | 47.66% |
-| Gradient Boosting | 47.04% |
-| Histogram Gradient Boosting | 44.55% |
+| **Logistic Regression** | **49.84 %** |
+| Random Forest | 47.66 % |
+| Gradient Boosting | 47.04 % |
+| Hist Gradient Boosting | 44.55 % |
 
-The final selected model is:
+Le modèle finalement retenu est donc :
 
-## 🏆 Logistic Regression — 49.84% accuracy
+### Logistic Regression — 49.84 %
 
-A more complex algorithm did not automatically produce better predictions.
+Un point intéressant du projet est qu'un modèle plus complexe n'a pas forcément donné de meilleurs résultats.
 
-For this dataset and the available features, Logistic Regression generalized better than the tested ensemble models.
+La Logistic Regression a obtenu les meilleures performances parmi les modèles testés.
 
 ---
 
-# ⚠️ Predicting Draws
+## Difficulté des matchs nuls
 
-One of the main difficulties discovered during the project was predicting draws.
+Une des principales limites du modèle concerne les matchs nuls.
 
-Football results are naturally imbalanced, and the model tends to predict home or away wins more often than draws.
+Le modèle arrive beaucoup mieux à reconnaître les victoires à domicile ou à l'extérieur que les nuls.
 
-Several approaches were tested, including:
+J'ai testé plusieurs solutions, notamment :
+
+- le rééquilibrage des classes
+- des seuils de probabilité spécifiques
+- différents modèles
+
+Ces méthodes permettaient parfois de détecter plus de nuls, mais réduisaient l'accuracy globale.
+
+C'est donc un des principaux points qui pourrait être amélioré dans une future version.
+
+---
+
+## Comment j'ai créé le projet
+
+Je n'ai pas construit directement le modèle final. Le projet a évolué progressivement.
+
+### 1. Recherche des données
+
+Au début, j'ai testé plusieurs API de football.
+
+J'ai rencontré plusieurs problèmes :
+
+- limites de requêtes
+- compétitions bloquées
+- abonnements nécessaires
+- erreurs HTTP 403
+- données historiques limitées
+
+J'ai finalement utilisé les fichiers CSV de Football-Data.co.uk pour avoir suffisamment de matchs gratuitement.
+
+### 2. Préparation du dataset
+
+J'ai regroupé plusieurs saisons de Ligue 1 dans un seul dataset puis conservé les informations nécessaires.
+
+J'ai également trié les matchs chronologiquement.
+
+### 3. Premier modèle
+
+Le premier modèle obtenait environ :
 
 ```text
-class_weight="balanced"
+42.56 % d'accuracy
 ```
 
-and custom probability thresholds for draws.
+Ce résultat m'a servi de référence pour mesurer les améliorations suivantes.
 
-These approaches increased the number of draw predictions but reduced overall accuracy.
+### 4. Ajout de la forme récente
 
-This remains one of the main areas for future improvement.
+J'ai créé des statistiques basées sur les 5 derniers matchs de chaque équipe :
 
----
+- points obtenus
+- buts marqués
+- buts encaissés
 
-# 🔮 Match Prediction
+Il fallait faire attention à calculer ces informations **avant le match à prédire** pour éviter que le modèle utilise le résultat futur.
 
-After training, the final model is saved using `joblib`:
+### 5. Ajout des comparaisons
+
+J'ai ensuite ajouté des variables permettant de comparer directement les deux équipes :
+
+```text
+form_diff
+attack_diff
+defense_diff
+```
+
+### 6. Ajout de l'Elo
+
+J'ai créé un système Elo permettant de donner une estimation du niveau de chaque équipe.
+
+Cette étape a permis de faire passer les performances du modèle proche des **50 %**.
+
+### 7. Comparaison des modèles
+
+Au lieu de garder directement un modèle, j'en ai testé plusieurs sur le même jeu de test :
+
+```text
+Logistic Regression      49.84%
+Random Forest            47.66%
+Gradient Boosting        47.04%
+Hist Gradient Boosting   44.55%
+```
+
+La Logistic Regression a donc été conservée.
+
+### 8. Sauvegarde du modèle
+
+Le modèle entraîné est sauvegardé avec **Joblib** :
 
 ```text
 models/football_model.pkl
 ```
 
-The feature configuration is also saved:
+La liste des features utilisées est également sauvegardée :
 
 ```text
 models/features.pkl
 ```
 
-The prediction script loads these files and calculates probabilities for a match.
+Cela permet de faire des prédictions sans réentraîner le modèle à chaque fois.
 
-Example:
+### 9. Système de prédiction
 
-```bash
-python src/models/predict.py
-```
-
-Example output:
+J'ai ensuite créé un script permettant de choisir deux équipes et d'obtenir les probabilités :
 
 ```text
-⚽ Paris SG vs Marseille
-----------------------------------------
-
-Marseille            : 10.29%
-Draw                 : 16.73%
-Paris SG             : 72.98%
-
-🎯 Prediction: Paris SG
+Victoire domicile
+Match nul
+Victoire extérieur
 ```
+
+### 10. Application web
+
+Enfin, j'ai créé une interface web pour rendre le modèle facilement utilisable.
+
+L'application est déployée sur Vercel :
+
+👉 [pronostic-foot.vercel.app](https://pronostic-foot.vercel.app/)
 
 ---
 
-# 📁 Project Structure
+## Structure du projet
 
 ```text
 Predictions-Foot/
@@ -310,7 +329,6 @@ Predictions-Foot/
 ├── data/
 │   ├── raw/
 │   └── processed/
-│       └── ligue1_features.csv
 │
 ├── models/
 │   ├── football_model.pkl
@@ -327,16 +345,14 @@ Predictions-Foot/
 │       ├── train_model.py
 │       └── predict.py
 │
+├── README.md
 ├── requirements.txt
-├── .gitignore
-└── README.md
+└── .gitignore
 ```
 
 ---
 
-# 🛠️ Technologies
-
-The project was developed with:
+## Technologies utilisées
 
 - Python
 - Pandas
@@ -345,56 +361,46 @@ The project was developed with:
 - Joblib
 - Git
 - GitHub
-
-Machine Learning techniques used include:
-
-- Data preprocessing
-- Feature engineering
-- Classification
-- Logistic Regression
-- Random Forest
-- Gradient Boosting
-- Feature scaling
-- Elo ratings
-- Chronological train/test splitting
-- Model evaluation
+- Vercel
 
 ---
 
-# 🚀 Running the Project
+## Lancer le projet
 
-Clone the repository:
+### Cloner le repository
 
 ```bash
-git clone <repository-url>
+git clone <URL_DU_REPOSITORY>
 cd Predictions-Foot
 ```
 
-Create a virtual environment:
+### Créer l'environnement virtuel
 
 ```bash
 python -m venv .venv
 ```
 
-Activate it on macOS/Linux:
+### Activer l'environnement
+
+Sur macOS / Linux :
 
 ```bash
 source .venv/bin/activate
 ```
 
-Install dependencies:
+### Installer les dépendances
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Train the models:
+### Entraîner le modèle
 
 ```bash
 python src/models/train_model.py
 ```
 
-Run a prediction:
+### Faire une prédiction
 
 ```bash
 python src/models/predict.py
@@ -402,208 +408,63 @@ python src/models/predict.py
 
 ---
 
-# 🧪 How I Built This Project
+## Ce que j'ai appris
 
-This project was built progressively rather than starting directly with a complex Machine Learning model.
+Ce projet m'a surtout permis de pratiquer un projet Data Science du début à la fin.
 
-## 1. Data Collection
+J'ai notamment travaillé sur :
 
-I first explored several football APIs to obtain recent Ligue 1 data.
-
-During this process, I encountered limitations such as:
-
-- API request limits
-- restricted competitions
-- subscription requirements
-- HTTP 403 errors
-- unavailable historical data
-
-I eventually chose historical CSV football data because it provided enough matches to train and evaluate a Machine Learning model without depending on a paid API.
-
----
-
-## 2. Data Preparation
-
-I combined multiple Ligue 1 seasons into a single dataset.
-
-The initial dataset was cleaned and reduced to the variables required for the project.
-
-I also converted dates and ensured matches were processed chronologically.
-
----
-
-## 3. First Machine Learning Model
-
-I created a first baseline model using simple match and form features.
-
-The initial accuracy was approximately:
-
-```text
-42.56%
-```
-
-This baseline gave me a reference point for evaluating future improvements.
-
----
-
-## 4. Recent Team Form
-
-I then calculated statistics using each team's previous five matches.
-
-This included:
-
-- recent points
-- goals scored
-- goals conceded
-
-A major challenge was making sure the current match was added to the team's history **after** calculating its features.
-
-Otherwise, the model would have access to future information.
-
----
-
-## 5. Feature Engineering
-
-I created additional comparative features such as:
-
-```text
-form_diff
-attack_diff
-defense_diff
-```
-
-This allowed the model to compare both teams directly instead of analyzing their statistics independently.
-
----
-
-## 6. Elo Rating System
-
-I implemented an Elo rating system to estimate the historical strength of every team.
-
-This became one of the most useful features in the project.
-
-After adding Elo, model accuracy increased to approximately:
-
-```text
-49%
-```
-
----
-
-## 7. Model Experiments
-
-I tested different Machine Learning approaches.
-
-I experimented with:
-
-- Random Forest
+- la récupération de données réelles
+- Pandas et la manipulation de DataFrames
+- le nettoyage des données
+- la création de features
+- les données temporelles
+- le problème du data leakage
+- les modèles de classification
 - Logistic Regression
-- class balancing
-- draw probability thresholds
-- StandardScaler
+- Random Forest
 - Gradient Boosting
-- Histogram Gradient Boosting
+- l'accuracy, la precision, le recall et le F1-score
+- le scaling des variables
+- le système Elo
+- la comparaison de plusieurs modèles
+- la sauvegarde d'un modèle entraîné
+- Git et GitHub
+- le déploiement d'une application web
 
-Some experiments improved specific classes but reduced overall accuracy.
-
-Instead of keeping every modification, I compared the models using the same test data.
-
----
-
-## 8. Model Selection
-
-The final comparison produced:
-
-```text
-Logistic Regression      49.84%
-Random Forest            47.66%
-Gradient Boosting        47.04%
-Hist Gradient Boosting   44.55%
-```
-
-Logistic Regression was therefore selected as the final model.
+Ce projet m'a aussi montré qu'en Machine Learning, **ajouter un modèle plus complexe ne signifie pas forcément obtenir de meilleures prédictions**. La qualité des données et des features est très importante.
 
 ---
 
-## 9. Model Persistence
+## Améliorations possibles
 
-Instead of retraining the model every time a prediction is requested, I saved the trained model using Joblib.
+Le projet pourrait encore être amélioré avec :
 
-The application can now load the trained model directly and generate predictions.
-
----
-
-## 10. Prediction System
-
-Finally, I created a prediction script that takes two teams and returns the probabilities of:
-
-```text
-Home win
-Draw
-Away win
-```
-
-This transformed the project from a simple Machine Learning experiment into a reusable prediction system.
+- plus de saisons
+- les Expected Goals (xG)
+- les blessures
+- les compositions d'équipes
+- les statistiques des joueurs
+- le classement actuel
+- les confrontations directes
+- une meilleure gestion des matchs nuls
+- l'optimisation des hyperparamètres
+- la mise à jour automatique des nouveaux matchs
 
 ---
 
-# 📚 What I Learned
+## Limites
 
-This project helped me understand the complete workflow of a Machine Learning project.
+Une accuracy de **49.84 %** signifie évidemment que le modèle est encore loin de pouvoir prédire parfaitement un match de football.
 
-In particular, I learned how to:
+Le football dépend de nombreux éléments qui ne sont pas présents dans les données utilisées : blessures, cartons, tactique, compositions, forme individuelle des joueurs, etc.
 
-- collect and clean real-world data
-- work with Pandas DataFrames
-- process chronological datasets
-- avoid data leakage
-- create features from historical observations
-- implement an Elo rating system
-- train classification models
-- understand accuracy, precision, recall and F1-score
-- compare several Machine Learning algorithms
-- deal with imbalanced classes
-- scale numerical features
-- save and reload trained models
-- structure a Python Data Science project
-- use Git and GitHub to manage a project
-
-One of the most important lessons from this project is that **better data and better features can matter more than using a more complicated Machine Learning algorithm**.
+Ce projet a donc principalement un objectif **Data Science et Machine Learning** et non un objectif de paris sportifs.
 
 ---
 
-# 🔮 Future Improvements
-
-Possible future improvements include:
-
-- adding current Ligue 1 standings
-- expected goals (xG)
-- injuries and suspensions
-- player statistics
-- head-to-head statistics
-- separate home/away ratings
-- improved draw prediction
-- hyperparameter optimization
-- probability calibration
-- more historical seasons
-- automatic updates with recent matches
-- web interface for predictions
-- deployment on Vercel
-
----
-
-# ⚠️ Disclaimer
-
-This project was created for educational and Data Science purposes.
-
-Football matches contain a large amount of randomness and external factors that are not represented in the dataset.
-
-The predictions should therefore not be considered betting advice.
-
----
-
-## 👤 Author
+## Auteur
 
 **Alban**
 
-Student project focused on Data Science, Machine Learning and football analytics.
+Projet personnel autour de la Data Science, du Machine Learning et du football.
