@@ -42,5 +42,8 @@ def prediction(request: MatchRequest):
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
-# Keep this mount last so the API routes above take precedence.
-app.mount("/", StaticFiles(directory=PUBLIC_DIRECTORY, html=True), name="public")
+# Vercel serves ``public/`` separately from the Python function bundle. Keep
+# the mount for local development, but do not fail API startup when that folder
+# is intentionally absent from the serverless bundle.
+if PUBLIC_DIRECTORY.is_dir():
+    app.mount("/", StaticFiles(directory=PUBLIC_DIRECTORY, html=True), name="public")
