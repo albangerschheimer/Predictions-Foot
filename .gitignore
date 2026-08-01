@@ -17,11 +17,22 @@ __pycache__/
 # VS Code
 .vscode/
 
+# Local tooling
+.playwright-cli/
+.vercel/
+
 # Raw data
 data/raw/
 
 # Processed data
 data/processed/
+!data/processed/
+data/processed/*
+!data/processed/ligue1_features.csv
 
 # Trained models
-models/
+/models/
+!/models/
+/models/*
+!/models/features.pkl
+!/models/football_model.pkl

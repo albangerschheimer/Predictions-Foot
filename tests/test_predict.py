@@ -1,0 +1,34 @@
+import math
+import unittest
+
+from src.models.predict import UnknownTeamError, get_available_teams, predict_match
+
+
+class PredictMatchTests(unittest.TestCase):
+    def test_reference_fixture_keeps_existing_probabilities(self):
+        result = predict_match("Paris SG", "Marseille")
+
+        self.assertEqual(result["prediction"], {"class": "H", "label": "Paris SG"})
+        self.assertAlmostEqual(result["probabilities"]["home"], 0.7298, places=4)
+        self.assertAlmostEqual(result["probabilities"]["draw"], 0.1673, places=4)
+        self.assertAlmostEqual(result["probabilities"]["away"], 0.1029, places=4)
+        self.assertTrue(math.isclose(sum(result["probabilities"].values()), 1.0))
+
+    def test_current_teams_are_exposed(self):
+        teams = get_available_teams()
+
+        self.assertEqual(len(teams), 18)
+        self.assertIn("Paris SG", teams)
+        self.assertIn("Marseille", teams)
+
+    def test_same_team_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "différentes"):
+            predict_match("Lyon", "Lyon")
+
+    def test_unknown_team_is_rejected(self):
+        with self.assertRaises(UnknownTeamError):
+            predict_match("Équipe imaginaire", "Lyon")
+
+
+if __name__ == "__main__":
+    unittest.main()
