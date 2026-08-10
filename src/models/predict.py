@@ -48,6 +48,44 @@ def get_available_teams(*, current_season_only: bool = True) -> list[str]:
     return sorted(teams)
 
 
+def get_recent_matches(team: str, *, limit: int = 5) -> list[dict[str, Any]]:
+    """Return a team's latest results, ordered from newest to oldest."""
+
+    _, _, dataframe = _load_assets()
+    matches = dataframe[
+        (dataframe["HomeTeam"] == team) | (dataframe["AwayTeam"] == team)
+    ]
+
+    if matches.empty:
+        raise UnknownTeamError(f"Unknown team: {team}")
+
+    recent_matches = []
+    for _, row in matches.tail(limit).iloc[::-1].iterrows():
+        is_home = row["HomeTeam"] == team
+        goals_for = int(row["FTHG"] if is_home else row["FTAG"])
+        goals_against = int(row["FTAG"] if is_home else row["FTHG"])
+
+        if goals_for > goals_against:
+            result = "W"
+        elif goals_for < goals_against:
+            result = "L"
+        else:
+            result = "D"
+
+        recent_matches.append(
+            {
+                "date": pd.to_datetime(row["Date"]).date().isoformat(),
+                "opponent": str(row["AwayTeam"] if is_home else row["HomeTeam"]),
+                "venue": "home" if is_home else "away",
+                "goals_for": goals_for,
+                "goals_against": goals_against,
+                "result": result,
+            }
+        )
+
+    return recent_matches
+
+
 def _latest_team_row(dataframe: pd.DataFrame, team: str) -> pd.Series:
     matches = dataframe[
         (dataframe["HomeTeam"] == team) | (dataframe["AwayTeam"] == team)
@@ -170,6 +208,10 @@ def predict_match(home_team: str, away_team: str) -> dict[str, Any]:
         "prediction": {
             "class": prediction_class,
             "label": labels[prediction_class],
+        },
+        "recent_form": {
+            "home": get_recent_matches(home_team),
+            "away": get_recent_matches(away_team),
         },
     }
 
