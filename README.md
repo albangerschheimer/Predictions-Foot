@@ -2,6 +2,10 @@
 
 Projet de Machine Learning permettant de prédire le résultat d'un match de Ligue 1 à partir des performances passées des équipes.
 
+## Transparence sur l’IA
+
+Ce projet a été réalisé avec l’aide de **GPT-5.5**. Le modèle a servi d’assistant pendant la conception et l’implémentation ; les choix, les vérifications et la responsabilité du résultat restent humains.
+
 Le modèle estime les probabilités de trois résultats :
 
 - Victoire de l'équipe à domicile
