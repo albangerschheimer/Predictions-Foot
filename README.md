@@ -470,5 +470,6 @@ Ce projet a donc principalement un objectif **Data Science et Machine Learning**
 ## Auteur
 
 **Alban**
+Projet réalisé avec l’aide de **GPT-5.5**.
 
 Projet personnel autour de la Data Science, du Machine Learning et du football.
