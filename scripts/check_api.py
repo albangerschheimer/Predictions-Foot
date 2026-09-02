@@ -8,13 +8,15 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 TOKEN = os.getenv("FOOTBALL_DATA_TOKEN")
-BASE_URL = os.getenv("BASE_URL")
+BASE_URL = os.getenv("FOOTBALL_DATA_BASE_URL") or os.getenv("BASE_URL")
 
 if not TOKEN:
     raise RuntimeError("FOOTBALL_DATA_TOKEN est absent du fichier .env")
 
 if not BASE_URL:
-    raise RuntimeError("BASE_URL est absent du fichier .env")
+    raise RuntimeError(
+        "FOOTBALL_DATA_BASE_URL (ou BASE_URL) est absent du fichier .env"
+    )
 
 url = f"{BASE_URL}/competitions/FL1/matches"
 
