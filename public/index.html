@@ -1,126 +1,117 @@
 <!doctype html>
-<html lang="en" class="intro-pending">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Simple Ligue 1 match predictions and recent form." />
-    <meta name="theme-color" content="#f3f4ef" />
-    <title>PredictionFoot</title>
+    <meta name="description" content="Ligue 1 match probabilities from a logistic regression trained on five seasons of results." />
+    <meta name="theme-color" content="#efe9dc" />
+    <title>PredictionFoot — Ligue 1</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="preload" href="/assets/football-3d.png" as="image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap"
+    />
     <link rel="stylesheet" href="/styles.css" />
     <script src="/app.js" defer></script>
   </head>
   <body>
-    <div class="intro" id="intro" aria-hidden="true">
-      <div class="intro-wordmark">Prediction<span>Foot.</span></div>
-      <img id="intro-ball" src="/assets/football-3d.png" alt="" />
-    </div>
-
-    <header class="site-header">
-      <a class="brand" href="/" aria-label="PredictionFoot home">
-        Prediction<span>Foot.</span>
-      </a>
-      <div class="league-mark">
-        <span>Ligue 1 · 25/26</span>
-        <img id="header-ball" src="/assets/football-3d.png" alt="" aria-hidden="true" />
-      </div>
+    <header class="masthead">
+      <p class="dateline">
+        <span>Ligue 1 · 2025–26</span>
+        <span id="today"></span>
+      </p>
+      <a class="nameplate" href="/">PredictionFoot</a>
+      <p class="dateline">
+        <span>Five seasons, 1,678 matches, one logistic regression</span>
+        <span>Right about half the time</span>
+      </p>
     </header>
 
     <main>
-      <h1 class="visually-hidden">Ligue 1 match prediction</h1>
+      <section class="fixture" id="fixture" aria-labelledby="fixture-title">
+        <h1 id="fixture-title" class="label">Pick a fixture</h1>
 
-      <section class="match-card" id="match-card" aria-label="Choose a fixture">
-        <article class="team-panel">
-          <span class="venue-label">Home</span>
-
-          <div class="team-identity">
-            <div class="club-crest" id="home-crest">
-              <img src="" alt="" />
-              <span class="crest-fallback">PSG</span>
-            </div>
-            <label for="home-team">Home team</label>
-            <div class="select-wrap">
-              <select id="home-team" name="home_team" required disabled>
-                <option>Loading…</option>
-              </select>
-              <span aria-hidden="true">⌄</span>
-            </div>
+        <div class="fixture-line">
+          <div class="side">
+            <img class="crest" id="home-crest" alt="" />
+            <label class="label" for="home-team">Home</label>
+            <select id="home-team" name="home_team" disabled>
+              <option>Loading…</option>
+            </select>
           </div>
 
-          <div class="recent-form">
-            <p>Last 5</p>
-            <ol id="home-form" aria-label="Home team last five matches"></ol>
-          </div>
-        </article>
-
-        <div class="versus">
-          <span aria-hidden="true">VS</span>
-          <button
-            id="swap-teams"
-            type="button"
-            aria-label="Swap home and away teams"
-            title="Swap teams"
-          >
-            ⇄
+          <button id="swap-teams" type="button" title="Swap home and away">
+            <span aria-hidden="true">v</span>
+            <span class="visually-hidden">Swap home and away teams</span>
           </button>
+
+          <div class="side">
+            <img class="crest" id="away-crest" alt="" />
+            <label class="label" for="away-team">Away</label>
+            <select id="away-team" name="away_team" disabled>
+              <option>Loading…</option>
+            </select>
+          </div>
         </div>
-
-        <article class="team-panel">
-          <span class="venue-label">Away</span>
-
-          <div class="team-identity">
-            <div class="club-crest" id="away-crest">
-              <img src="" alt="" />
-              <span class="crest-fallback">OM</span>
-            </div>
-            <label for="away-team">Away team</label>
-            <div class="select-wrap">
-              <select id="away-team" name="away_team" required disabled>
-                <option>Loading…</option>
-              </select>
-              <span aria-hidden="true">⌄</span>
-            </div>
-          </div>
-
-          <div class="recent-form">
-            <p>Last 5</p>
-            <ol id="away-form" aria-label="Away team last five matches"></ol>
-          </div>
-        </article>
       </section>
 
-      <div id="form-error" class="error-message" role="alert" hidden></div>
+      <p id="form-error" class="error-message" role="alert" hidden></p>
 
-      <section
-        id="results"
-        class="prediction-card"
-        aria-labelledby="prediction-title"
-        aria-live="polite"
-        hidden
-      >
-        <div class="verdict">
-          <span>Prediction</span>
-          <h2 id="prediction-title"></h2>
+      <section id="results" class="verdict" aria-live="polite" hidden>
+        <div class="call">
+          <h2 class="label">Our call</h2>
+          <p id="prediction-title" class="call-name"></p>
+          <p id="prediction-note" class="call-note"></p>
         </div>
 
-        <div class="probabilities">
-          <div class="probability" data-outcome="home">
-            <div><span id="home-result-label">Home</span><strong id="home-probability">0%</strong></div>
-            <div class="bar"><span id="home-bar"></span></div>
+        <div class="split" aria-hidden="true">
+          <span id="home-bar"></span>
+          <span id="draw-bar"></span>
+          <span id="away-bar"></span>
+        </div>
+
+        <dl class="odds">
+          <div data-outcome="home">
+            <dt id="home-result-label">Home win</dt>
+            <dd id="home-probability">–</dd>
           </div>
-          <div class="probability" data-outcome="draw">
-            <div><span>Draw</span><strong id="draw-probability">0%</strong></div>
-            <div class="bar"><span id="draw-bar"></span></div>
+          <div data-outcome="draw">
+            <dt>Draw</dt>
+            <dd id="draw-probability">–</dd>
           </div>
-          <div class="probability" data-outcome="away">
-            <div><span id="away-result-label">Away</span><strong id="away-probability">0%</strong></div>
-            <div class="bar"><span id="away-bar"></span></div>
+          <div data-outcome="away">
+            <dt id="away-result-label">Away win</dt>
+            <dd id="away-probability">–</dd>
           </div>
+        </dl>
+      </section>
+
+      <section id="form-guide" class="form-guide" aria-labelledby="form-title" hidden>
+        <h2 id="form-title" class="label">Form guide, last five league games</h2>
+        <div class="tables">
+          <table>
+            <caption id="home-form-title"></caption>
+            <tbody id="home-form"></tbody>
+          </table>
+          <table>
+            <caption id="away-form-title"></caption>
+            <tbody id="away-form"></tbody>
+          </table>
         </div>
       </section>
     </main>
 
-    <noscript><style>.intro { display: none !important; } html, body { overflow: auto !important; }</style></noscript>
+    <footer class="colophon">
+      <p>
+        Features: Elo ratings, points per game, goals for and against over the last five.
+        Results from football-data.co.uk. Tested accuracy 49.8%: draws are mostly a guess.
+      </p>
+      <p>
+        Not a betting tool.
+        <a href="https://github.com/albangerschheimer/Predictions-Foot">Source on GitHub</a>
+      </p>
+    </footer>
   </body>
 </html>
