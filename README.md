@@ -351,3 +351,7 @@ responsabilité du résultat restent humains.
 
 [MIT](LICENSE) © 2026 Alban Gerschheimer. Les données de matchs appartiennent à
 Football-Data.co.uk et restent soumises à leurs conditions.
+
+---
+
+*Dernière mise à jour : novembre 2026.*
